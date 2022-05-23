@@ -29,4 +29,24 @@ public class EnemyFleet {
             ship.draw(game);
         }
     }
+
+    private double getLeftBorder(){
+        double smallestX = 100;
+        for (EnemyShip ship : ships) {
+            if (ship.x < smallestX){
+                smallestX = ship.x;
+            }
+        }
+        return smallestX;
+    }
+
+    private double getRightBorder(){
+        double largestXWidth = 0;
+        for (EnemyShip ship : ships) {
+            if (ship.x + ship.width > largestXWidth){
+                largestXWidth = ship.x + ship.width;
+            }
+        }
+        return largestXWidth;
+    }
 }
