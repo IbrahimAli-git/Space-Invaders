@@ -27,9 +27,9 @@ public class SpaceInvadersGame extends Game {
     }
 
     private void drawField() {
-        for (int i = 0; i < HEIGHT; i++) {
-            for (int j = 0; j < WIDTH; j++) {
-                setCellValueEx(i, j, Color.BLACK, "");
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                setCellValueEx(x, y, Color.BLACK, "");
             }
         }
 
@@ -39,10 +39,11 @@ public class SpaceInvadersGame extends Game {
     }
 
     private void createStars() {
-        stars = new ArrayList<Star>();
+        stars = new ArrayList<>();
         for (int i = 0; i < 8; i++) {
-            stars.add(new Star(i, i));
+            int x = getRandomNumber(WIDTH);
+            int y = getRandomNumber(HEIGHT);
+            stars.add(new Star(x, y));
         }
     }
 }
-
