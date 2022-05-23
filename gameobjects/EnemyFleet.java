@@ -3,6 +3,7 @@ package com.codegym.games.spaceinvaders.gameobjects;
 import com.codegym.engine.cell.Game;
 import com.codegym.games.spaceinvaders.Direction;
 import com.codegym.games.spaceinvaders.ShapeMatrix;
+import com.codegym.games.spaceinvaders.SpaceInvadersGame;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +35,24 @@ public class EnemyFleet {
     }
 
     public void move(){
+        if (ships.size() == 0) return;
 
+        double speed = getSpeed();
+        if (direction == Direction.LEFT && getLeftBorder() < 0){
+            direction = Direction.RIGHT;
+            for (EnemyShip ship : ships) {
+                ship.move(Direction.DOWN, speed);
+            }
+        } else if (direction == Direction.RIGHT && getRightBorder() > SpaceInvadersGame.WIDTH){
+            direction = Direction.LEFT;
+            for (EnemyShip ship : ships) {
+                ship.move(Direction.DOWN, speed);
+            }
+        } else {
+            for (EnemyShip ship : ships) {
+                ship.move(direction, speed);
+            }
+        }
     }
 
     private double getSpeed(){
