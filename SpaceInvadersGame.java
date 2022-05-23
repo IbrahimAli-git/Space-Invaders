@@ -3,7 +3,6 @@ package com.codegym.games.spaceinvaders;
 import com.codegym.engine.cell.*;
 import com.codegym.games.spaceinvaders.gameobjects.EnemyFleet;
 import com.codegym.games.spaceinvaders.gameobjects.Star;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +32,7 @@ public class SpaceInvadersGame extends Game {
 
     @Override
     public void onTurn(int step) {
+        moveSpaceObjects();
         drawScene();
     }
 
@@ -55,5 +55,9 @@ public class SpaceInvadersGame extends Game {
             int y = getRandomNumber(HEIGHT);
             stars.add(new Star(x, y));
         }
+    }
+
+    private void moveSpaceObjects(){
+        enemyFleet.move();
     }
 }
