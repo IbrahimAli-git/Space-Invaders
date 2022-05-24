@@ -5,7 +5,6 @@ import com.codegym.games.spaceinvaders.gameobjects.Bullet;
 import com.codegym.games.spaceinvaders.gameobjects.EnemyFleet;
 import com.codegym.games.spaceinvaders.gameobjects.PlayerShip;
 import com.codegym.games.spaceinvaders.gameobjects.Star;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -79,6 +78,15 @@ public class SpaceInvadersGame extends Game {
             playerShip.setDirection(Direction.LEFT);
         } else if (key == Key.RIGHT){
             playerShip.setDirection(Direction.RIGHT);
+        }
+    }
+
+    @Override
+    public void onKeyReleased(Key key) {
+        if (key == Key.LEFT && playerShip.getDirection() == Direction.LEFT){
+            playerShip.setDirection(Direction.UP);
+        } else if (key == Key.RIGHT && playerShip.getDirection() == Direction.RIGHT){
+            playerShip.setDirection(Direction.UP);
         }
     }
 
