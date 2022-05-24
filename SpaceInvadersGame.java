@@ -3,8 +3,11 @@ package com.codegym.games.spaceinvaders;
 import com.codegym.engine.cell.*;
 import com.codegym.games.spaceinvaders.gameobjects.Bullet;
 import com.codegym.games.spaceinvaders.gameobjects.EnemyFleet;
+import com.codegym.games.spaceinvaders.gameobjects.PlayerShip;
 import com.codegym.games.spaceinvaders.gameobjects.Star;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class SpaceInvadersGame extends Game {
@@ -13,6 +16,10 @@ public class SpaceInvadersGame extends Game {
     private List<Star> stars;
     private EnemyFleet enemyFleet;
     public static final int DIFFICULTY = 5;
+    private List<Bullet> enemyBullets;
+    private PlayerShip playerShip;
+    private boolean isGameStopped;
+    private int animationsCount;
 
     @Override
     public void initialize() {
@@ -23,6 +30,10 @@ public class SpaceInvadersGame extends Game {
     private void createGame() {
         createStars();
         enemyFleet = new EnemyFleet();
+        enemyBullets = new ArrayList<>();
+        playerShip = new PlayerShip();
+        isGameStopped = false;
+        animationsCount = 0;
         drawScene();
         setTurnTimer(40);
     }
@@ -30,11 +41,33 @@ public class SpaceInvadersGame extends Game {
     private void drawScene() {
         drawField();
         enemyFleet.draw(this);
+        for (Bullet enemyBullet : enemyBullets) {
+            enemyBullet.draw(this);
+        }
+        playerShip.draw(this);
+    }
+
+    private void stopGame(boolean isWin) {
+        isGameStopped = true;
+        stopTurnTimer();
+        Color color = isWin ? Color.GREEN : Color.RED;
+        String message = isWin ? "You've Won" : "You've Lost";
+        showMessageDialog(Color.NONE, message, color, 75);
+    }
+
+    private void stopGameWithDelay() {
+        animationsCount++;
+        if (animationsCount >= 10) {
+            stopGame(playerShip.isAlive);
+        }
     }
 
     @Override
     public void onTurn(int step) {
         moveSpaceObjects();
+        check();
+        Bullet bullet = enemyFleet.fire(this);
+        if (bullet != null) enemyBullets.add(bullet);
         drawScene();
     }
 
@@ -61,5 +94,24 @@ public class SpaceInvadersGame extends Game {
 
     private void moveSpaceObjects() {
         enemyFleet.move();
+        for (Bullet enemyBullet : enemyBullets) {
+            enemyBullet.move();
+        }
+    }
+
+    private void removeDeadBullets() {
+        for (int i = 0; i < enemyBullets.size(); i++) {
+            if (!enemyBullets.get(i).isAlive || enemyBullets.get(i).y >= HEIGHT - 1) {
+                enemyBullets.remove(enemyBullets.get(i));
+            }
+        }
+    }
+
+    private void check() {
+        playerShip.checkHit(enemyBullets);
+        removeDeadBullets();
+        if (!playerShip.isAlive){
+            stopGameWithDelay();
+        }
     }
 }
