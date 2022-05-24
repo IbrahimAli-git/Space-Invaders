@@ -1,91 +1,91 @@
-package com.codegym.games.spaceinvaders.gameobjects;
+package com.codegym.games.spaceinvaders;
 
-import com.codegym.engine.cell.Game;
-import com.codegym.games.spaceinvaders.Direction;
-import com.codegym.games.spaceinvaders.ShapeMatrix;
-import com.codegym.games.spaceinvaders.SpaceInvadersGame;
-
+import com.codegym.engine.cell.*;
+import com.codegym.games.spaceinvaders.gameobjects.Bullet;
+import com.codegym.games.spaceinvaders.gameobjects.EnemyFleet;
+import com.codegym.games.spaceinvaders.gameobjects.Star;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-public class EnemyFleet {
-    private static final int ROWS_COUNT = 3;
-    private static final int COLUMNS_COUNT = 10;
-    private static final int STEP = ShapeMatrix.ENEMY.length+1;
-    private List<EnemyShip> ships;
-    private Direction direction = Direction.RIGHT;
+public class SpaceInvadersGame extends Game {
+    public static final int WIDTH = 64;
+    public static final int HEIGHT = 64;
+    private List<Star> stars;
+    private EnemyFleet enemyFleet;
+    public static final int DIFFICULTY = 5;
+    private List<Bullet> enemyBullets;
 
-    public EnemyFleet(){
-        createShips();
+
+    @Override
+    public void initialize() {
+        setScreenSize(WIDTH, HEIGHT);
+        createGame();
     }
 
-    private void createShips(){
-        ships = new ArrayList<>();
-        for (double x = 0; x < COLUMNS_COUNT; x++) {
-            for (double y = 0; y < ROWS_COUNT; y++) {
-                ships.add(new EnemyShip(x * STEP, y * STEP + 12));
+    private void createGame() {
+        createStars();
+        enemyFleet = new EnemyFleet();
+        enemyBullets = new ArrayList<>();
+        drawScene();
+        setTurnTimer(40);
+    }
+
+    private void drawScene() {
+        drawField();
+        enemyFleet.draw(this);
+        for (Bullet enemyBullet : enemyBullets) {
+            enemyBullet.draw(this);
+        }
+    }
+
+    @Override
+    public void onTurn(int step) {
+        moveSpaceObjects();
+        check();
+        Bullet bullet = enemyFleet.fire(this);
+        if (bullet != null) enemyBullets.add(bullet);
+        drawScene();
+    }
+
+    private void drawField() {
+        for (int y = 0; y < HEIGHT; y++) {
+            for (int x = 0; x < WIDTH; x++) {
+                setCellValueEx(x, y, Color.BLACK, "");
+            }
+        }
+
+        for (Star star : stars) {
+            star.draw(this);
+        }
+    }
+
+    private void createStars() {
+        stars = new ArrayList<>();
+        for (int i = 0; i < 8; i++) {
+            int x = getRandomNumber(WIDTH);
+            int y = getRandomNumber(HEIGHT);
+            stars.add(new Star(x, y));
+        }
+    }
+
+    private void moveSpaceObjects(){
+        enemyFleet.move();
+        for (Bullet enemyBullet : enemyBullets) {
+            enemyBullet.move();
+        }
+    }
+
+    private void removeDeadBullets(){
+        for (int i = 0; i < enemyBullets.size(); i++) {
+            if (!enemyBullets.get(i).isAlive || enemyBullets.get(i).y >= HEIGHT-1){
+                enemyBullets.remove(enemyBullets.get(i));
             }
         }
     }
 
-    public void draw(Game game){
-        for (EnemyShip ship : ships) {
-            ship.draw(game);
-        }
-    }
-
-    public void move(){
-        if (ships.size() == 0) return;
-
-        double speed = getSpeed();
-        if (direction == Direction.LEFT && getLeftBorder() < 0){
-            direction = Direction.RIGHT;
-            for (EnemyShip ship : ships) {
-                ship.move(Direction.DOWN, speed);
-            }
-        } else if (direction == Direction.RIGHT && getRightBorder() > SpaceInvadersGame.WIDTH){
-            direction = Direction.LEFT;
-            for (EnemyShip ship : ships) {
-                ship.move(Direction.DOWN, speed);
-            }
-        } else {
-            for (EnemyShip ship : ships) {
-                ship.move(direction, speed);
-            }
-        }
-    }
-
-    public Bullet fire(Game game){
-        if (ships.size() == 0) return null;
-
-        int randomNumber = game.getRandomNumber(100/SpaceInvadersGame.DIFFICULTY);
-        if (randomNumber > 0) return null;
-
-        int ship = game.getRandomNumber(ships.size());
-        return ships.get(ship).fire();
-    }
-
-    private double getSpeed(){
-        return Math.min(2.0, 3.0 / ships.size());
-    }
-
-    private double getLeftBorder(){
-        double smallestX = 100;
-        for (EnemyShip ship : ships) {
-            if (ship.x < smallestX){
-                smallestX = ship.x;
-            }
-        }
-        return smallestX;
-    }
-
-    private double getRightBorder(){
-        double largestXWidth = 0;
-        for (EnemyShip ship : ships) {
-            if (ship.x + ship.width > largestXWidth){
-                largestXWidth = ship.x + ship.width;
-            }
-        }
-        return largestXWidth;
+    private void check(){
+        removeDeadBullets();
     }
 }
+
