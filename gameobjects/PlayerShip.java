@@ -1,10 +1,13 @@
 package com.codegym.games.spaceinvaders.gameobjects;
 
+import com.codegym.games.spaceinvaders.Direction;
 import com.codegym.games.spaceinvaders.ShapeMatrix;
 import com.codegym.games.spaceinvaders.SpaceInvadersGame;
 import java.util.List;
 
 public class PlayerShip extends Ship {
+    private Direction direction = Direction.UP;
+
     public PlayerShip(){
         super(SpaceInvadersGame.WIDTH/2.0, SpaceInvadersGame.HEIGHT- ShapeMatrix.PLAYER.length-1);
         setStaticView(ShapeMatrix.PLAYER);
@@ -28,6 +31,12 @@ public class PlayerShip extends Ship {
     public void kill() {
         if (!isAlive) return;
         isAlive = false;
-        setAnimatedView(ShapeMatrix.KILL_PLAYER_ANIMATION_FIRST, ShapeMatrix.KILL_PLAYER_ANIMATION_SECOND, ShapeMatrix.KILL_PLAYER_ANIMATION_THIRD, ShapeMatrix.DEAD_PLAYER);
+        super.setAnimatedView(ShapeMatrix.KILL_PLAYER_ANIMATION_FIRST, ShapeMatrix.KILL_PLAYER_ANIMATION_SECOND, ShapeMatrix.KILL_PLAYER_ANIMATION_THIRD, ShapeMatrix.DEAD_PLAYER);
+    }
+
+    public void setDirection(Direction newDirection) {
+        if (newDirection != Direction.DOWN){
+            this.direction = newDirection;
+        }
     }
 }
