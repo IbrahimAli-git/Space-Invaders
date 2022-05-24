@@ -3,6 +3,7 @@ package com.codegym.games.spaceinvaders.gameobjects;
 import com.codegym.games.spaceinvaders.Direction;
 import com.codegym.games.spaceinvaders.ShapeMatrix;
 import com.codegym.games.spaceinvaders.SpaceInvadersGame;
+
 import java.util.List;
 
 public class PlayerShip extends Ship {
@@ -37,6 +38,12 @@ public class PlayerShip extends Ship {
     }
 
     @Override
+    public Bullet fire() {
+        if (!isAlive) return null;
+        return new Bullet(x + 2, y - ShapeMatrix.BULLET.length, Direction.UP);
+    }
+
+    @Override
     public void kill() {
         if (!isAlive) return;
         isAlive = false;
@@ -57,4 +64,3 @@ public class PlayerShip extends Ship {
         }
     }
 }
-
