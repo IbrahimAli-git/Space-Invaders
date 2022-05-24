@@ -5,6 +5,7 @@ import com.codegym.games.spaceinvaders.gameobjects.Bullet;
 import com.codegym.games.spaceinvaders.gameobjects.EnemyFleet;
 import com.codegym.games.spaceinvaders.gameobjects.PlayerShip;
 import com.codegym.games.spaceinvaders.gameobjects.Star;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -87,7 +88,6 @@ public class SpaceInvadersGame extends Game {
                 setCellValueEx(x, y, Color.BLACK, "");
             }
         }
-
         for (Star star : stars) {
             star.draw(this);
         }
@@ -107,6 +107,7 @@ public class SpaceInvadersGame extends Game {
         for (Bullet enemyBullet : enemyBullets) {
             enemyBullet.move();
         }
+        playerShip.move();
     }
 
     private void removeDeadBullets() {
