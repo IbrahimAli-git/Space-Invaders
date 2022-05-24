@@ -13,6 +13,10 @@ public class PlayerShip extends Ship {
         setStaticView(ShapeMatrix.PLAYER);
     }
 
+    public Direction getDirection() {
+        return direction;
+    }
+
     public void setDirection(Direction newDirection) {
         if (newDirection != Direction.DOWN){
             this.direction = newDirection;
@@ -53,3 +57,4 @@ public class PlayerShip extends Ship {
         }
     }
 }
+
