@@ -13,6 +13,32 @@ public class PlayerShip extends Ship {
         setStaticView(ShapeMatrix.PLAYER);
     }
 
+    public void setDirection(Direction newDirection) {
+        if (newDirection != Direction.DOWN){
+            this.direction = newDirection;
+        }
+    }
+
+    public void move(){
+        if (!isAlive) return;
+        switch (direction){
+            case LEFT: x--; break;
+            case RIGHT: x++;
+        }
+        if (x < 0){
+            x = 0;
+        } if (x + width > SpaceInvadersGame.WIDTH){
+            x = SpaceInvadersGame.WIDTH - width;
+        }
+    }
+
+    @Override
+    public void kill() {
+        if (!isAlive) return;
+        isAlive = false;
+        super.setAnimatedView(ShapeMatrix.KILL_PLAYER_ANIMATION_FIRST, ShapeMatrix.KILL_PLAYER_ANIMATION_SECOND, ShapeMatrix.KILL_PLAYER_ANIMATION_THIRD, ShapeMatrix.DEAD_PLAYER);
+    }
+
     public void checkHit(List<Bullet> bullets) {
         if (bullets.isEmpty()) return;
 
@@ -24,19 +50,6 @@ public class PlayerShip extends Ship {
                     return;
                 }
             }
-        }
-    }
-
-    @Override
-    public void kill() {
-        if (!isAlive) return;
-        isAlive = false;
-        super.setAnimatedView(ShapeMatrix.KILL_PLAYER_ANIMATION_FIRST, ShapeMatrix.KILL_PLAYER_ANIMATION_SECOND, ShapeMatrix.KILL_PLAYER_ANIMATION_THIRD, ShapeMatrix.DEAD_PLAYER);
-    }
-
-    public void setDirection(Direction newDirection) {
-        if (newDirection != Direction.DOWN){
-            this.direction = newDirection;
         }
     }
 }
