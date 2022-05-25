@@ -3,25 +3,21 @@ package com.codegym.games.spaceinvaders.gameobjects;
 import com.codegym.games.spaceinvaders.Direction;
 import com.codegym.games.spaceinvaders.ShapeMatrix;
 
-public class Bullet extends GameObject{
+public class Bullet extends GameObject {
     private int dy;
     public boolean isAlive = true;
 
     public Bullet(double x, double y, Direction direction) {
         super(x, y);
         setMatrix(ShapeMatrix.BULLET);
-        if (direction == Direction.UP){
-            dy = -1;
-        } else {
-            dy = 1;
-        }
+        this.dy = direction == Direction.UP ? -1 : 1;
     }
 
-    public void move(){
+    public void move() {
         y += dy;
     }
 
-    public void kill(){
+    public void kill() {
         isAlive = false;
     }
 }
