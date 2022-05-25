@@ -6,20 +6,22 @@ import com.codegym.games.spaceinvaders.gameobjects.EnemyFleet;
 import com.codegym.games.spaceinvaders.gameobjects.PlayerShip;
 import com.codegym.games.spaceinvaders.gameobjects.Star;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class SpaceInvadersGame extends Game {
     public static final int WIDTH = 64;
     public static final int HEIGHT = 64;
+    public static final int DIFFICULTY = 5;
+    private static final int PLAYER_BULLETS_MAX = 1;
     private List<Star> stars;
     private EnemyFleet enemyFleet;
-    public static final int DIFFICULTY = 5;
     private List<Bullet> enemyBullets;
     private PlayerShip playerShip;
-    private boolean isGameStopped;
-    private int animationsCount;
     private List<Bullet> playerBullets;
+    private boolean isGameStopped = false;
+    private int animationsCount;
+    private int score;
+
 
     @Override
     public void initialize() {
@@ -28,13 +30,14 @@ public class SpaceInvadersGame extends Game {
     }
 
     private void createGame() {
-        createStars();
+        isGameStopped = false;
+        animationsCount = 0;
         enemyFleet = new EnemyFleet();
         enemyBullets = new ArrayList<>();
         playerShip = new PlayerShip();
-        isGameStopped = false;
-        animationsCount = 0;
         playerBullets = new ArrayList<>();
+        score = 0;
+        createStars();
         drawScene();
         setTurnTimer(40);
     }
@@ -42,56 +45,14 @@ public class SpaceInvadersGame extends Game {
     private void drawScene() {
         drawField();
         enemyFleet.draw(this);
-        for (Bullet enemyBullet : enemyBullets) {
-            enemyBullet.draw(this);
-        }
         playerShip.draw(this);
-        for (Bullet playerBullet : playerBullets) {
-            playerBullet.draw(this);
+
+        for (Bullet bullet : enemyBullets) {
+            bullet.draw(this);
         }
-    }
 
-    private void stopGame(boolean isWin) {
-        isGameStopped = true;
-        stopTurnTimer();
-        Color color = isWin ? Color.GREEN : Color.RED;
-        String message = isWin ? "You've Won" : "You've Lost";
-        showMessageDialog(Color.NONE, message, color, 75);
-    }
-
-    private void stopGameWithDelay() {
-        animationsCount++;
-        if (animationsCount >= 10) {
-            stopGame(playerShip.isAlive);
-        }
-    }
-
-    @Override
-    public void onTurn(int step) {
-        moveSpaceObjects();
-        check();
-        Bullet bullet = enemyFleet.fire(this);
-        if (bullet != null) enemyBullets.add(bullet);
-        drawScene();
-    }
-
-    @Override
-    public void onKeyPress(Key key) {
-        if (key == Key.SPACE && isGameStopped){
-            createGame();
-        } else if (key == Key.LEFT){
-            playerShip.setDirection(Direction.LEFT);
-        } else if (key == Key.RIGHT){
-            playerShip.setDirection(Direction.RIGHT);
-        }
-    }
-
-    @Override
-    public void onKeyReleased(Key key) {
-        if (key == Key.LEFT && playerShip.getDirection() == Direction.LEFT){
-            playerShip.setDirection(Direction.UP);
-        } else if (key == Key.RIGHT && playerShip.getDirection() == Direction.RIGHT){
-            playerShip.setDirection(Direction.UP);
+        for (Bullet bullet : playerBullets) {
+            bullet.draw(this);
         }
     }
 
@@ -101,6 +62,7 @@ public class SpaceInvadersGame extends Game {
                 setCellValueEx(x, y, Color.BLACK, "");
             }
         }
+
         for (Star star : stars) {
             star.draw(this);
         }
@@ -115,30 +77,113 @@ public class SpaceInvadersGame extends Game {
         }
     }
 
+    @Override
+    public void onTurn(int step) {
+        moveSpaceObjects();
+        check();
+
+        Bullet bullet = enemyFleet.fire(this);
+        if (bullet != null) {
+            enemyBullets.add(bullet);
+        }
+        setScore(score);
+        drawScene();
+    }
+
+    @Override
+    public void onKeyPress(Key key) {
+        if (Key.SPACE == key) {
+            if (isGameStopped) {
+                createGame();
+                return;
+            }
+
+            Bullet bullet = playerShip.fire();
+            if (bullet != null && playerBullets.size() < PLAYER_BULLETS_MAX) {
+                playerBullets.add(bullet);
+            }
+        }
+
+        if (Key.LEFT == key) {
+            playerShip.setDirection(Direction.LEFT);
+        }
+
+        if (Key.RIGHT == key) {
+            playerShip.setDirection(Direction.RIGHT);
+        }
+    }
+
+    @Override
+    public void onKeyReleased(Key key) {
+        if (Key.LEFT == key && playerShip.getDirection() == Direction.LEFT) {
+            playerShip.setDirection(Direction.UP);
+        }
+        if (Key.RIGHT == key && playerShip.getDirection() == Direction.RIGHT) {
+            playerShip.setDirection(Direction.UP);
+        }
+    }
+
+    @Override
+    public void setCellValueEx(int x, int y, Color color, String value) {
+        if (x > WIDTH - 1 || x < 0 || y < 0 || y > HEIGHT - 1) {
+            return;
+        }
+        super.setCellValueEx(x, y, color, value);
+    }
+
+
     private void moveSpaceObjects() {
         enemyFleet.move();
+        playerShip.move();
+
         for (Bullet enemyBullet : enemyBullets) {
             enemyBullet.move();
         }
-        playerShip.move();
-        for (Bullet playerBullet : playerBullets) {
-            playerBullet.move();
+
+        for (Bullet bullet : playerBullets) {
+            bullet.move();
         }
     }
 
     private void removeDeadBullets() {
-        for (int i = 0; i < enemyBullets.size(); i++) {
-            if (!enemyBullets.get(i).isAlive || enemyBullets.get(i).y >= HEIGHT - 1) {
-                enemyBullets.remove(enemyBullets.get(i));
-            }
-        }
+        enemyBullets.removeIf(bullet -> !bullet.isAlive || bullet.y >= HEIGHT - 1);
+        playerBullets.removeIf(bullet -> !bullet.isAlive || bullet.y + bullet.height < 0);
+
     }
 
     private void check() {
         playerShip.checkHit(enemyBullets);
+        score += enemyFleet.checkHit(playerBullets);
+        enemyFleet.deleteHiddenShips();
         removeDeadBullets();
-        if (!playerShip.isAlive){
+        if (!playerShip.isAlive) {
+            stopGameWithDelay();
+        }
+        if(enemyFleet.getBottomBorder() >= playerShip.y){
+            playerShip.kill();
+        }
+        if (enemyFleet.getShipCount() == 0){
+            playerShip.win();
             stopGameWithDelay();
         }
     }
+
+    private void stopGame(boolean isWin) {
+        isGameStopped = true;
+        stopTurnTimer();
+
+        if (isWin) {
+            showMessageDialog(Color.NONE, "YOU WIN", Color.GREEN, 50);
+        } else {
+            showMessageDialog(Color.NONE, "GAME OVER", Color.RED, 50);
+        }
+    }
+
+    private void stopGameWithDelay() {
+        animationsCount++;
+        if (animationsCount >= 10) {
+            stopGame(playerShip.isAlive);
+        }
+    }
 }
+
