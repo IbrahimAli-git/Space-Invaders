@@ -13,7 +13,7 @@ The space invader game I have created using the codegym gaming engine. For more 
 1. Clone the project
 2. Open the project in VS Code or Intellij idea
 3. Ensure Java is installed (any version is compatible)
-4. Run Space.java
+4. Run Game.java
 
 ## Collaborators  
 Ibrahim Ali - ibrahimali139@hotmail.com  
